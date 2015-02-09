@@ -15,10 +15,10 @@ print img
 
 ancho=len(img)
 alto=len(img[0])
-#Sx=[[-1,0,1],[-2,0,2],[-1,0,1]]
-#Sy=[[1,2,1],[0,0,0],[-1,-2,-1]]
-Sx=[[-1,0,1],[-1,0,1],[-1,0,1]]
-Sy=[[1,1,1],[0,0,0],[-1,-1,-1]]
+Sx=[[-1,0,1],[-2,0,2],[-1,0,1]]
+Sy=[[1,2,1],[0,0,0],[-1,-2,-1]]
+#Sx=[[-1,0,1],[-1,0,1],[-1,0,1]]
+#Sy=[[1,1,1],[0,0,0],[-1,-1,-1]]
 
 mask_long=len(Sx)
 print "ancho: ",ancho
@@ -27,30 +27,20 @@ print "alto: ",alto
 #blancos con ultimo valor en 0
 def recorrer():
     magnitudes=[]
-    r=0
-    #nuevo_array=[[0]*alto for i in xrange(ancho)]
     for i in xrange(1,ancho-1):
         for j in xrange(1,alto-1):
-            sumax=0
-            sumay=0
+            sumax=0.0
+            sumay=0.0
             for m in xrange(mask_long):
                 for b in xrange(mask_long):
                     if (i+m)-1<ancho and (j+b)-1<alto:
                         sumax+=img[(i+m)-1][(j+b)-1]*Sx[m][b]
                         sumay+=img[(i+m)-1][(j+b)-1]*Sy[m][b]
-                    if m==1 and b==1:
-                        r+=1
-            #print sumax
-            #print sumay
             resultado=abs(sumax)+abs(sumay)
-            #resultado=math.sqrt(pow(sumax,2)+pow(sumay,2))
             if resultado>255:
                 resultado=255
             magnitudes.append(resultado)
             #nuevo_array[i][j]=abs(sumax)+abs(sumay)
-    print "r: ",r
-    print "magnitudes: ", len(magnitudes)
-    print "restantes: ", (alto*ancho)-r
     return magnitudes
 
 histo=recorrer()
@@ -67,22 +57,30 @@ def frecuencia(arr):
                 freq[arr[j]]=1
     return freq
 frecuencias=frecuencia(histo)
-def threshold(element):
+def cajas(element):
     cajitas=[]
     kl=[]
     print element
     for k in element:
-        kl.append(k)
-    for n in xrange(0,len(kl),2):
-        if n==len(kl)-1:
-            res=kl[n]
-            if res>=255:
-                res=255
-            cajitas.append(res)
-        else:
+        kl.append(element[k])
+    #res=0
+    if len(kl)%2!=0:
+        for n in xrange(0,len(kl),2):
+            if n==len(kl)-1:
+                res=kl[n]
+                if res>255:
+                    res=255.0
+                cajitas.append(res)
+            else:
+                res=kl[n]+kl[n+1]
+                if res>255:
+                    res=255.0
+                cajitas.append(res)
+    else:
+        for n in xrange(0,len(kl),2):
             res=kl[n]+kl[n+1]
-            if res>=255:
-                res=255
+            if res>255:
+                res=255.0
             cajitas.append(res)
 
     return cajitas
@@ -91,7 +89,7 @@ def prom(elm):
     for u in elm:
         suma+=u
     return suma/len(elm)
-caj=threshold(frecuencias)
+caj=cajas(frecuencias)
 #print caj
         
 #def get_threshold(frecuencias):
@@ -101,12 +99,15 @@ caj=threshold(frecuencias)
 #K_clustering(2,1,B)
 #print "frecuencia-> \n",frecuencias
 promedio=prom(caj)
-for i in xrange(1,ancho-1):
-     for j in xrange(1,alto-1):
+print "caj: ",caj
+print "prom: ", promedio
+for i in xrange(ancho):
+     for j in xrange(alto):
          if img[i][j]>=promedio+20:
-             img[i][j]=200
+             img[i][j]=255
          else:
              img[i][j]=0
+
 
 plt.bar(range(0,len(caj)), caj)
 plt.figure()
@@ -118,7 +119,7 @@ plt.figure()
 # #print histo
 #K_clustering(2,3,converted)
 
-plt.imshow(img, cmap = cm.Greys_r)
+plt.imshow(img,cmap = cm.Greys_r)
 # #plt.figure()
 plt.show()
 
