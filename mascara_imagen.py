@@ -57,6 +57,7 @@ def frecuencia(arr):
                 freq[arr[j]]=1
     return freq
 frecuencias=frecuencia(histo)
+
 def cajas(element):
     cajitas=[]
     kl=[]
