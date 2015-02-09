@@ -8,28 +8,31 @@ from sys import argv
 from abrir_imagen import *
 import math
 import matplotlib.pyplot as plt
+from k_means import *
 img=gray_scale(argv[1])
 #img=[[1,2,3],[4,5,6],[7,8,9],[10,11,12],[13,14,15]]
-#print img
+print img
+
 ancho=len(img)
 alto=len(img[0])
-Sx=[[-1,0,1],[-2,0,2],[-1,0,1]]
-Sy=[[1,2,1],[0,0,0],[-1,-2,-1]]
+#Sx=[[-1,0,1],[-2,0,2],[-1,0,1]]
+#Sy=[[1,2,1],[0,0,0],[-1,-2,-1]]
+Sx=[[-1,0,1],[-1,0,1],[-1,0,1]]
+Sy=[[1,1,1],[0,0,0],[-1,-1,-1]]
+
 mask_long=len(Sx)
 print "ancho: ",ancho
 print "alto: ",alto
 #convulucion_discreta
 #blancos con ultimo valor en 0
 def recorrer():
-    for i in img:
-        print i
     magnitudes=[]
     r=0
     #nuevo_array=[[0]*alto for i in xrange(ancho)]
     for i in xrange(1,ancho-1):
         for j in xrange(1,alto-1):
-            sumax=0.0
-            sumay=0.0
+            sumax=0
+            sumay=0
             for m in xrange(mask_long):
                 for b in xrange(mask_long):
                     if (i+m)-1<ancho and (j+b)-1<alto:
@@ -64,14 +67,59 @@ def frecuencia(arr):
                 freq[arr[j]]=1
     return freq
 frecuencias=frecuencia(histo)
-print "frecuencia-> \n",frecuencias
+def threshold(element):
+    cajitas=[]
+    kl=[]
+    print element
+    for k in element:
+        kl.append(k)
+    for n in xrange(0,len(kl),2):
+        if n==len(kl)-1:
+            res=kl[n]
+            if res>=255:
+                res=255
+            cajitas.append(res)
+        else:
+            res=kl[n]+kl[n+1]
+            if res>=255:
+                res=255
+            cajitas.append(res)
 
-plt.bar(range(0,len(histo)), histo)
+    return cajitas
+def prom(elm):
+    suma=0.0
+    for u in elm:
+        suma+=u
+    return suma/len(elm)
+caj=threshold(frecuencias)
+#print caj
+        
+#def get_threshold(frecuencias):
+#B = np.reshape(histo, (ancho, alto))
+#B=np.resize(histo, 10).reshape(5,2)
+#print "redimension: \n",B
+#K_clustering(2,1,B)
+#print "frecuencia-> \n",frecuencias
+promedio=prom(caj)
+for i in xrange(1,ancho-1):
+     for j in xrange(1,alto-1):
+         if img[i][j]>=promedio+20:
+             img[i][j]=200
+         else:
+             img[i][j]=0
+
+plt.bar(range(0,len(caj)), caj)
 plt.figure()
-#plt.show()
-            
-plt.imshow(img, cmap = cm.Greys_r)
+
+
+#plt.bar(range(0,len(histo)), histo)
 #plt.figure()
+#plt.show()
+# #print histo
+#K_clustering(2,3,converted)
+
+plt.imshow(img, cmap = cm.Greys_r)
+# #plt.figure()
 plt.show()
 
 
