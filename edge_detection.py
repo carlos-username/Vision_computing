@@ -14,37 +14,36 @@ print img
 
 ancho=len(img)
 alto=len(img[0])
-Sx=[[-1,0,1],[-2,0,2],[-1,0,1]]
+Sx=[[-1,0,1],[-2,0,2],[-1,0,1]] # Masks for the Sobel 3 3 3 operator
 Sy=[[1,2,1],[0,0,0],[-1,-2,-1]]
-#Sx=[[-1,0,1],[-1,0,1],[-1,0,1]]
-#Sy=[[1,1,1],[0,0,0],[-1,-1,-1]]
 
-mask_long=len(Sx)
+mask_long=len(Sx) #gettng mask length
 print "ancho: ",ancho
 print "alto: ",alto
 #convulucion_discreta
 #blancos con ultimo valor en 0
-def recorrer():
-    magnitudes=[]
+def recorrer(): #getting gradient magnitudes
+    magnitudes=[] #vector for magnitudes
     for i in xrange(1,ancho-1):
         for j in xrange(1,alto-1):
             sumax=0.0
             sumay=0.0
             for m in xrange(mask_long):
                 for b in xrange(mask_long):
-                    if (i+m)-1<ancho and (j+b)-1<alto:
-                        sumax+=img[(i+m)-1][(j+b)-1]*Sx[m][b]
-                        sumay+=img[(i+m)-1][(j+b)-1]*Sy[m][b]
-            resultado=abs(sumax)+abs(sumay)
-            if resultado>255:
+                    if (i+m)-1<ancho and (j+b)-1<alto: #validating borders of matrix, working only on central pixels
+                        sumax+=img[(i+m)-1][(j+b)-1]*Sx[m][b] #getting Gx
+                        sumay+=img[(i+m)-1][(j+b)-1]*Sy[m][b] #Getting Gy
+            resultado=abs(sumax)+abs(sumay) #Getting magnitudes by using absolute value
+            #resultado=math.sqrt(pow(sumax,2)+pow(sumay,2))
+            if resultado>255: #validating pixel ranges
                 resultado=255
             magnitudes.append(resultado)
             #nuevo_array[i][j]=abs(sumax)+abs(sumay)
     return magnitudes
 
-histo=recorrer()
+histo=recorrer() #getting magnitudes
 print "histo->\n",histo
-def frecuencia(arr):
+def frecuencia(arr): #getting frecuency
     val=[]
     freq={}
     for j in xrange(len(arr)):
@@ -57,7 +56,7 @@ def frecuencia(arr):
     return freq
 frecuencias=frecuencia(histo)
 
-def cajas(element):
+def cajas(element): #Grouping elements in 2-element boxes
     cajitas=[]
     kl=[]
     print element
@@ -84,24 +83,18 @@ def cajas(element):
             cajitas.append(res)
 
     return cajitas
-def prom(elm):
+                                
+def prom(elm): #Getting average
     suma=0.0
     for u in elm:
         suma+=u
     return suma/len(elm)
-caj=cajas(frecuencias)
-#print caj
-        
-#def get_threshold(frecuencias):
-#B = np.reshape(histo, (ancho, alto))
-#B=np.resize(histo, 10).reshape(5,2)
-#print "redimension: \n",B
-#K_clustering(2,1,B)
-#print "frecuencia-> \n",frecuencias
-promedio=prom(caj)
+caj=cajas(frecuencias) # Getting boxes
+
+promedio=prom(caj) 
 print "caj: ",caj
 print "prom: ", promedio
-for i in xrange(ancho):
+for i in xrange(ancho): #Detecting edges by using previously calculated threshold
      for j in xrange(alto):
          if img[i][j]>=promedio+20:
              img[i][j]=255
@@ -109,22 +102,10 @@ for i in xrange(ancho):
              img[i][j]=0
 
 
-plt.bar(range(0,len(caj)), caj)
+plt.bar(range(0,len(caj)), caj) #Drawing histogram
 plt.figure()
-
-
-#plt.bar(range(0,len(histo)), histo)
-#plt.figure()
-#plt.show()
-# #print histo
-#K_clustering(2,3,converted)
-
-plt.imshow(img,cmap = cm.Greys_r)
-# #plt.figure()
+plt.imshow(img,cmap = cm.Greys_r) #Drawing modified image with detected edges
 plt.show()
 
-
-
-#guardar la imagen nueva 
                     
 
