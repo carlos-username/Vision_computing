@@ -1,3 +1,3 @@
 # Vision_computing
 
-Vision computing in python
+Vision computing with python
