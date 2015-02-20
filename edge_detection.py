@@ -83,4 +83,6 @@ for i in xrange(1,ancho-1): #Detecting edges by using previously calculated thre
          else:
              img[i][j]=0
          r+=1
-
+#plt.imshow(img,cmap = cm.Greys_r) #Drawing modified image with detected shapes
+#plt.show()
+     

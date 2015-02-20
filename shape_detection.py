@@ -3,7 +3,7 @@
 from edge_detection import * #In edge_detection, a median filter is applied as well as grayscale is used.
 def detectar_formas(img2):
     while len(pixeles)>0: #detect objets in image, until all coordenates corresponding to the borders are covered
-        color=(randint(200,300),randint(200,300),randint(200,300)) 
+        color=(randint(60,230),randint(110,210),randint(70,255)) 
         inicio=choice(pixeles)
         print "inicio: ",inicio
         print "pixeles: ",len(pixeles)
@@ -15,7 +15,7 @@ def detectar_formas(img2):
         recorrido2=imagendfs(img2,inicio,recorrido1,3) #discover all the coordenates within the figure to be later colored
         for i in recorrido2:
             img2[i[0]][i[1]]=color
-        centro_masa(img2,recorrido2)
+        centro_masa(img2,recorrido2) #get mass center of shape
   
 def main():
     inicio=(0,0)
