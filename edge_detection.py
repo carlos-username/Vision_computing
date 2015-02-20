@@ -1,5 +1,6 @@
 #!/usr/bin/python2
 #import cv2
+from random import choice
 import matplotlib.pyplot as plt
 import numpy as np
 from random import randint
@@ -8,13 +9,12 @@ from sys import argv
 from abrir_imagen import *
 import math
 import matplotlib.pyplot as plt
-from medias import *
+from medias import * #filters
 import math
-img=gray_scale(argv[1])
-#img=median(img2)
-#img=[[1,2,3],[4,5,6],[7,8,9],[10,11,12],[13,14,15]]
-#print img
-
+from dfs_and_vec import * #subroutine for dfs
+from detectar_cuadro import * #detect box
+img2=gray_scale(argv[1])
+img=median(img2)
 ancho=len(img)
 alto=len(img[0])
 Sx=[[-1,0,1],[-2,0,2],[-1,0,1]] # Masks for the Sobel 3 3 3 operator
@@ -49,7 +49,7 @@ def recorrer(): #getting gradient magnitudes
     return magnitudes
 
 histo=recorrer() #getting magnitudes
-print "histo->\n",histo
+#print "histo->\n",histo
 def frecuencia(arr): #getting frecuency
     val=[]
     freq={}
@@ -69,22 +69,18 @@ def prom(elm): #Getting average
         suma+=u
     return suma/len(elm)
 #caj=cajas(frecuencias) # Getting boxes
-promedio=prom(frecuencias)
-#promedio=prom(histo) 
+#promedio=prom(frecuencias)
+promedio=prom(histo) 
 #print "caj: ",caj
 #print "prom: ", promedio
 r=0
+pixeles=[]
 for i in xrange(1,ancho-1): #Detecting edges by using previously calculated threshold
      for j in xrange(1,alto-1):
          if histo[r]>promedio:
              img[i][j]=255
+             pixeles.append((i,j))
          else:
              img[i][j]=0
          r+=1
-#plt.bar(range(0,len(caj)), caj) #Drawing histogram
-#plt.figure()
-print angulos
-plt.imshow(img,cmap = cm.Greys_r) #Drawing modified image with detected edges
-plt.show()
 
-                    

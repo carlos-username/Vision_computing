@@ -10,23 +10,28 @@ def vecinos(posX,posY,imagen):
     return axis
 
 
-def imagendfs(imagen,coord,figura):
+def imagendfs(imagen,coord,figura,correr):
     print "coord: ",coord
+    color1=(50,100,100)
+    color2=(51,255,51)
     visitados=[]
     pila=[coord]
     nodo=coord
     while pila!=[]:
         nodo=pila.pop()
-        if (nodo[0],nodo[1]) not in visitados:
+        if nodo not in visitados:
             visitados.append(nodo)
             vec=vecinos(nodo[0],nodo[1],imagen)
             for n in vec:
-                for j in visitados:
-                    if n != j:
-                        if (n[0],n[1]) not in pila and (n[0],n[1]) in figura: 
-                                pila.append(n)
-           # print visitados
-    #print "visitados_final->\n",visitados
-    #print len(visitados)
+                if n not in visitados and n not in pila:
+                    if correr==1:
+                        if n not in figura: 
+                            pila.append(n)
+                    elif correr==2:
+                        if n in figura:
+                            pila.append(n)
+                    elif correr==3:
+                        if tuple(imagen[n[0]][n[1]])!=color1 and tuple(imagen[n[0]][n[1]])!=color2:
+                            pila.append(n)
     return visitados
 
