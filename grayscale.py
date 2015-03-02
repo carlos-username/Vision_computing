@@ -85,9 +85,9 @@ def otsu_t(hist,imagen):
                 t=threshold
     return t
 
-def otsu_t2(hist,imagen):
+def otsu_t2(hist,imagen): #otsu automatic threshold
     total=len(imagen)*len(imagen[0])
-    no_of_bins = len( hist ) # should be 256
+    no_of_bins = len( hist ) 
 
     sum_total = 0
     for x in hist:
@@ -97,10 +97,8 @@ def otsu_t2(hist,imagen):
     weight_foreground   = 0.0
     sum_background   = 0.0
     vmax=-1
-    #inter_class_variances = []
     t=0
-    for threshold in hist:
-        # background weight will be incremented, while foreground's will be reduced
+    for threshold in hist: #automatic thresholding
         weight_background += hist[threshold]
         if weight_background == 0 :
             continue
