@@ -47,44 +47,6 @@ def histogram2(imagen):
             histo[h]+=1
     return histo
 
-def otsu_t(hist,imagen):
-    total=len(imagen)*len(imagen[0])
-    no_of_bins = len( hist ) # should be 256
-
-    sum_total = 0.0
-    for x in range( no_of_bins ):
-        if not hist[x]:
-            continue
-        else:
-            sum_total += x * hist[x]
-
-    weight_background   = 0.0
-    weight_foreground   = 0.0
-    sum_background   = 0.0
-    vmax=-1
-    #inter_class_variances = []
-    t=0
-    for threshold in xrange(no_of_bins):
-        # background weight will be incremented, while foreground's will be reduced
-        if hist[threshold]:
-            weight_background += hist[threshold]
-            if weight_background == 0 :
-                continue
-
-            weight_foreground = total - weight_background
-            if weight_foreground == 0 :
-                break
-
-            sum_background += threshold * hist[threshold]
-            mean_background = sum_background / weight_background
-            mean_foreground = (sum_total - sum_background) / weight_foreground
-
-            varb=weight_background * weight_foreground * pow(mean_background - mean_foreground,2)
-            if varb>=vmax:
-                vmax=varb
-                t=threshold
-    return t
-
 def otsu_t2(hist,imagen): #otsu automatic threshold
     total=len(imagen)*len(imagen[0])
     no_of_bins = len( hist ) 
