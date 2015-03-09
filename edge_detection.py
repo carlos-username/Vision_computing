@@ -70,19 +70,22 @@ def prom(elm): #Getting average
     return suma/len(elm)
 #caj=cajas(frecuencias) # Getting boxes
 #promedio=prom(frecuencias)
-promedio=prom(histo) 
+#promedio=prom(histo) 
 #print "caj: ",caj
 #print "prom: ", promedio
+longitud_magn=len(histo)
+threshold=otsu_t2(frecuencias,ancho*alto)
+print threshold
 r=0
 pixeles=[]
 for i in xrange(1,ancho-1): #Detecting edges by using previously calculated threshold
      for j in xrange(1,alto-1):
-         if histo[r]>promedio:
+         if histo[r]>threshold:
              img[i][j]=255
              pixeles.append((i,j))
          else:
              img[i][j]=0
          r+=1
-#plt.imshow(img,cmap = cm.Greys_r) #Drawing modified image with detected shapes
-#plt.show()
+plt.imshow(img,cmap = cm.Greys_r) #Drawing modified image with detected shapes
+plt.show()
      
