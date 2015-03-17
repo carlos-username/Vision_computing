@@ -14,6 +14,7 @@ from medias import * #filters
 import math
 from dfs_and_vec import * #subroutine for dfs
 from detectar_cuadro import * #detect box
+from grayscale import *
 img2=gray_scale(argv[1])
 img=median(img2)
 #histo_x=histogram(img3)
@@ -27,32 +28,57 @@ mask_long=len(Sx) #gettng mask length
 print "ancho: ",ancho
 print "alto: ",alto
 angulos=[]
+def frecuencia1(arr): #getting frecuency
+    val=[]
+    freq={}
+    for j in xrange(len(arr)):
+        val.append(arr[j])
+        if arr[j] in val:
+            if arr[j] in freq:
+                freq[arr[j]]+=1
+            else:
+                freq[arr[j]]=1
+    return freq
+                                                
 #convulucion_discreta
-#blancos con ultimo valor en 0
-def recorrer(): #getting gradient magnitudes
-    magnitudes=[] #vector for magnitudes
-
-    for i in xrange(1,ancho-1):
-        for j in xrange(1,alto-1):
-            sumax=0.0
-            sumay=0.0
-            for m in xrange(mask_long):
-                for b in xrange(mask_long):
-                    if (i+m)-1<ancho and (j+b)-1<alto: #validating borders of matrix, working only on central pixels
-                        sumax+=img[(i+m)-1][(j+b)-1]*Sx[m][b] #getting Gx
-                        sumay+=img[(i+m)-1][(j+b)-1]*Sy[m][b] #Getting Gy
-            #resultado=abs(sumax)+abs(sumay) #Getting magnitudes by using absolute value
-            resultado=math.sqrt(pow(sumax,2)+pow(sumay,2))
-            radians=math.atan2(sumay,sumax)
-            #radians=(radians*180)/math.pi
-            #angulos.append(radians)
-            #if resultado>255: #validating pixel ranges
-            #    resultado=255
-            magnitudes.append((resultado,radians))
-            #nuevo_array[i][j]=abs(sumax)+abs(sumay)
+def magnitudes_resultado(image,mask):
+    alto=len(image)
+    ancho=len(image[0])
+    mask_h=len(mask)
+    mask_w=len(mask[0])
+    magnitudes_r=[[0]*ancho for i in xrange(alto)]
+    for i in xrange(1,alto-1):
+        #row=[]
+        for j in xrange(1,ancho-1):
+            suma_r=0.0
+            for m in xrange(mask_h):
+                for b in xrange(mask_w):
+                    vert=(i+m)-1
+                    horiz=(j+b)-1
+                    if vert<alto and horiz<ancho: #validating borders of matrix, working only on central pixels
+                        suma_r+=image[vert][horiz]*mask[m][b] #getting Gx
+            #row.append(suma_r)
+            magnitudes_r[i][j]=suma_r
+    return magnitudes_r
+Gx=magnitudes_resultado(img,Sx)
+Gy=magnitudes_resultado(img,Sy)
+print "Gx: ", len(Gx), len(Gx[0])
+print "Gy: ", len(Gy), len(Gy[0])
+#print "lon_alto: ",len
+def recorrido(image):
+    alto=len(image)
+    ancho=len(image[0])
+    magnitudes=[]
+    for y in xrange(1,alto-1):
+        for x in xrange(1,ancho-1):
+            resultado=math.sqrt(pow(Gx[y][x],2)+pow(Gy[y][x],2))
+            radians=math.atan2(Gy[y][x],Gx[y][x])
+            magnitudes.append((resultado,round(radians)))
     return magnitudes
 
-histo=recorrer() #getting magnitudes
+histo=recorrido(img) #getting magnitudes
+print "len histo: ",len(histo)
+#print histo
 #print "histo->\n",histo
 def frecuencia(arr): #getting frecuency
     freq={}
@@ -63,6 +89,7 @@ def frecuencia(arr): #getting frecuency
             freq[arr[j][0]]=1
     return freq
 frecuencias=frecuencia(histo)
+longitud_magn=len(histo)
 #print frecuencias
 
 #threshold=otsu_t2(frecuencias,img)
