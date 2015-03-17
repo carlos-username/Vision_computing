@@ -55,6 +55,8 @@ def votos_fig(figura,radio,xmax,ymax,xmin,ymin): #getting votes for the centers 
             sumay+=m[0]
             sumax+=m[1]
             conta+=1
+    if not conta:
+        conta=0.001
     promy=int(round(sumay/conta)) #Get average of x corresponding to selected votes
     promx=int(round(sumax/conta)) ##Get average of y corresponding to selected votes
     print "promx: ",promx
