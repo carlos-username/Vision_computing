@@ -17,6 +17,25 @@ def acceder_bordes(imagen): #Separating gradient pixels
             r+=1
     return pixeles
 
+def tangent(yc,xc,img2):
+    #global img2
+    gx=Gx[yc][xc]
+    gy=Gy[yc][xc]
+    angle=math.atan2(gy,gx)
+    alpha=math.pi/2-angle
+    if angle != 0 and angle != pi/2 and alpha!=0 and alpha!=pi/2:
+        dx=cos(alpha)
+        dy=sin(alpha)
+        m=1.0*(dy/dx)
+        for x1 in xrange(ancho):
+            y2=int(round(m*(x1-xc)+yc))
+            #y3=x1*math.acos(alpha)-y1*math.tan(alpha)
+            if y2>=0 and y2<alto: 
+                #print "y2",y2
+                img2[y2][x1]=(0,100,0)
+                #img2[y3][x1]=(0,0,0)
+    return img2
+        
 def detectar_formas(img2,pixeles):
     alto=len(img2)
     ancho=len(img2[0])
@@ -43,14 +62,25 @@ def detectar_formas(img2,pixeles):
         x_mayor=max(borde,key=lambda item:item[1])
         print "picos: ", picos
         for jk in picos:
-            img2[jk[0]][jk[1]]=(100,200,0)
-        m_c1=(picos[0][0]-picos[1][0])/(picos[0][1]-picos[1][1])
-        m_c2=(picos[2][0]-picos[3][0])/(picos[2][1]-picos[3][1])
+            img2[jk[0]][jk[1]]=(255,200,0)
+        m_c1=1.0*(picos[0][0]-picos[1][0])/(picos[0][1]-picos[1][1])
+        print "m1: ",m_c1
+        m_c2=1.0*(picos[2][0]-picos[3][0])/(picos[2][1]-picos[3][1])
+        print "m2: ",m_c2
         #for y in xrange(y_menor[0],y_mayor[0]):
-        #for x in xrange(ancho):
-        #    equ1=int(round(m_c1*(x-picos[1][1])+picos[1][0]))
-        #    if equ1>=0 and equ1<y_mayor[0]:
-        #        img2[equ1][x]=(0,0,0)
+        for x in xrange(ancho):
+            equ1=int(round(m_c1*(x-picos[1][1])+picos[1][0]))
+            equ2=int(round(m_c2*(x-picos[2][1])+picos[2][0]))
+            if equ1>=0 and equ1<alto:
+                if (equ1,x) in borde:
+                    img2=tangent(equ1,x,img2)
+                    
+                if (equ2,x) in borde:
+                    img2=tangent(equ2,x,img2)
+                    
+                #img2[equ1][x]=(0,0,0)
+                #img2[equ2][x]=(0,0,0)
+            
         #no_str=[]
         #for nuevo in borde:
         #    if nuevo != x_mayor or nuevo != y_mayor or nuevo != x_menor or nuevo != y_menor:
@@ -85,7 +115,7 @@ def detectar_formas(img2,pixeles):
         #     alpha=math.pi/2-angle
         #     dx=cos(alpha)
         #     dy=sin(alpha)
-        #     m=dy/dx
+        #     m=1.0*dy/1.0*dx
         #     for x1 in xrange(ancho):
         #         y2=int(round(m*(x1-xc)+yc))
         #         #y3=x1*math.acos(alpha)-y1*math.tan(alpha)
