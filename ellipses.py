@@ -22,9 +22,9 @@ def tangent(yc,xc,ymin,ymax):
     gx=Gx[yc][xc]
     gy=Gy[yc][xc]
     angle=math.atan2(gy,gx)
-    alpha=math.pi/2-angle
+    alpha=math.pi/2-angle #substract pi/2 or 90° from the gradient angle to get the tangent one
     if angle != 0 and alpha!=0:
-        dx=cos(alpha)
+        dx=cos(alpha) #Get y and x component of slope
         dy=sin(alpha)
         m=1.0*(dy/dx)
         for x1 in xrange(ancho):
@@ -34,15 +34,17 @@ def tangent(yc,xc,ymin,ymax):
                 #print "y2",y2
                 dibujo[y2][x1]=(0,255,0)
                 #img2[y3][x1]=(0,0,0)
-        return m
-def equation(eq1,eq2,xmin,xmax):
+        return m #get the tangent slope
+def equation(eq1,eq2,ymin,ymax):
     for x in xrange(ancho):
         y1=int(round(eq1[0]*(x-eq1[2])+eq1[1]))
         y2=int(round(eq2[0]*(x-eq2[2])+eq2[1]))
         if y1==y2:
-            dibujo[y1][x]=(255,0,100)
-            for q in xrange(ancho):
+            dibujo[y1][x]=(255,0,100) #if equations cross each other
+            for q in xrange(ancho): #horizontal line
                 dibujo[y1][q]=(255,0,0)
+            for p in xrange(ymin[0],ymax[0]): #vertical line
+                dibujo[p][eq1[2]]=(255,100,0)
             return
         
         
@@ -86,68 +88,12 @@ def detectar_formas(img2,pixeles):
             equ2=int(round(m_c2*(x-picos[2][1])+picos[2][0]))
             if equ1>=0 and equ1<alto:
                 if (equ1,x) in borde and (equ2,x) in borde:
-                    slope=1.0*tangent(equ1,x,y_menor,y_mayor)
+                    slope=1.0*tangent(equ1,x,y_menor,y_mayor) #slope of equation
                     slope2=1.0*tangent(equ2,x,y_menor,y_mayor)
                     eqt1=(slope,equ1,x)
                     eqt2=(slope2,equ2,x)
-                    point=equation(eqt1,eqt2,x_menor,x_mayor)
-                    #print point
-                    #img2[point[0]][point[1]]=(255,0,255) 
-                    #continue
-                #img2[equ1][x]=(0,0,0)
-                    #break
-                #if (equ2,x) in borde:
-                #    slope=tangent(equ2,x,y_menor,y_mayor)
-                #    eqt2=(slope,equ2,x)
-                    #continue
-           # point=equation(eqt1,eqt2)
-           # img2[point[0]][point[1]]=(255,0,255)
-                   # break
-                #img2[equ1][x]=(0,0,0)
-                #img2[equ2][x]=(0,0,0)
-            
-        #no_str=[]
-        #for nuevo in borde:
-        #    if nuevo != x_mayor or nuevo != y_mayor or nuevo != x_menor or nuevo != y_menor:
-        #        no_str.append(nuevo)
-        # pixel=choice(no_str)
-        # (yc,xc)=pixel
-        # gx=Gx[yc][xc]
-        # gy=Gy[yc][xc]
-        # angulo=math.atan2(gy,gx)
-        # alpha=math.pi/2-angulo
-        # dx=cos(alpha)
-        # dy=sin(alpha)
-        # #x=dx+xc
-        # #y=dy+yc
-        # #m=y/x
-        # print "dy,dx-> ",dy,dx
-        # m=dx/dy
-        # #img2[y][x]=(0,0,0)
-        # for y1 in xrange(10,alto):
-        #     for x1 in xrange(10,ancho):
-        #         y2=int(round(m*(x1-xc)+yc))
-        #         #y3=x1*math.acos(alpha)-y1*math.tan(alpha)
-        #         if y2>=0 and y2<alto:
-        #             #print "y2",y2
-        #             img2[y2][x1]=(0,0,0)
-        #for (yc,xc) in no_str:
-        # for _ in xrange(2):
-        #     (yc,xc)=choice(no_str)
-        #     gx=Gx[yc][xc]
-        #     gy=Gy[yc][xc]
-        #     angle=math.atan2(gy,gx)
-        #     alpha=math.pi/2-angle
-        #     dx=cos(alpha)
-        #     dy=sin(alpha)
-        #     m=1.0*dy/1.0*dx
-        #     for x1 in xrange(ancho):
-        #         y2=int(round(m*(x1-xc)+yc))
-        #         #y3=x1*math.acos(alpha)-y1*math.tan(alpha)
-        #         if y2>=0 and y2<alto: 
-        #             #print "y2",y2
-        #             img2[y2][x1]=(0,100,0)
-        #             #img2[y3][x1]=(0,0,0)
+                    point=equation(eqt1,eqt2,y_menor,y_mayor) #find the point where the two lines intersect
+
                                                                                                                                                     
 def fondo(image):
     pixeles=acceder_bordes(dibujo)
