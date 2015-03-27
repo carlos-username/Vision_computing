@@ -11,22 +11,29 @@ def caja_envolvente(figura,imagen):
     print puntos
     #for r in puntos:
     #    imagen[puntos[r][0]][puntos[r][1]]=(255,255,0)
-        
-    for q in xrange(puntos["Xmin"][0],puntos["Xmax"][0]):
-        imagen[q][puntos["Ymin"][1]]=(51,255,51)
-        
+    picos=[]
+    #picos.append((puntos["Ymin"][0],puntos["Xmin"][1]))
+    
     for q in xrange(puntos["Ymin"][1],puntos["Ymax"][1]):
         imagen[puntos["Xmin"][0]][q]=(51,255,51)
-        
+    picos.append((puntos["Xmin"][0],q))
+   
     for q in xrange(puntos["Xmin"][0],puntos["Xmax"][0]):
-        imagen[q][puntos["Ymax"][1]]=(51,255,51)
-        
+        imagen[q][puntos["Ymin"][1]]=(51,255,51)
+    picos.append((q,puntos["Ymin"][1]))
+    picos.append((puntos["Xmin"][0],puntos["Ymin"][1]))
     for q in xrange(puntos["Ymin"][1],puntos["Ymax"][1]):
         imagen[puntos["Xmax"][0]][q]=(51,255,51)
-
+    picos.append((puntos["Xmax"][0],q))
+    for q in xrange(puntos["Xmin"][0],puntos["Xmax"][0]):
+        imagen[q][puntos["Ymax"][1]]=(51,255,51)
+    #picos.append((q,puntos["Ymax"][1]))
+   
     #distx=math.sqrt(pow(puntos["Xmax"][0]-puntos["Xmin"][0],2)+pow(puntos["Xmax"][1]-puntos["Xmin"][1],2))/2
     #disty=math.sqrt(pow(puntos["Ymax"][1]-puntos["Ymin"][1],2)+pow(puntos["Ymax"][0]-puntos["Ymin"][0],2))/2
     #imagen[puntos["Xmin"][0]+distx][puntos["Ymin"][1]+disty]=(0,0,0)
+    return picos
+
 def centro_masa(imagen,figura):
     ancho_im=len(imagen)
     alto_im=len(imagen[0])

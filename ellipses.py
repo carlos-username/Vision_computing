@@ -17,24 +17,34 @@ def acceder_bordes(imagen): #Separating gradient pixels
             r+=1
     return pixeles
 
-def tangent(yc,xc,img2):
+def tangent(yc,xc,ymin,ymax):
     #global img2
     gx=Gx[yc][xc]
     gy=Gy[yc][xc]
     angle=math.atan2(gy,gx)
     alpha=math.pi/2-angle
-    if angle != 0 and angle != pi/2 and alpha!=0 and alpha!=pi/2:
+    if angle != 0 and alpha!=0:
         dx=cos(alpha)
         dy=sin(alpha)
         m=1.0*(dy/dx)
         for x1 in xrange(ancho):
             y2=int(round(m*(x1-xc)+yc))
             #y3=x1*math.acos(alpha)-y1*math.tan(alpha)
-            if y2>=0 and y2<alto: 
+            if y2>=ymin[0]+5 and y2<ymax[0]+5:
                 #print "y2",y2
-                img2[y2][x1]=(0,100,0)
+                dibujo[y2][x1]=(0,255,0)
                 #img2[y3][x1]=(0,0,0)
-    return img2
+        return m
+def equation(eq1,eq2,xmin,xmax):
+    for x in xrange(ancho):
+        y1=int(round(eq1[0]*(x-eq1[2])+eq1[1]))
+        y2=int(round(eq2[0]*(x-eq2[2])+eq2[1]))
+        if y1==y2:
+            dibujo[y1][x]=(255,0,100)
+            for q in xrange(ancho):
+                dibujo[y1][q]=(255,0,0)
+            return
+        
         
 def detectar_formas(img2,pixeles):
     alto=len(img2)
@@ -52,8 +62,8 @@ def detectar_formas(img2,pixeles):
                 pixeles.remove((i[0],i[1])) #remove previously discovered figures
                 borde.append((i[0],i[1]))
         picos=caja_envolvente(recorrido1,img2)
-        for i in recorrido1:
-            img2[i[0]][i[1]]=color
+        #for i in recorrido1:
+        #    img2[i[0]][i[1]]=color
         #centro=centro_masa(img2,recorrido1) #get mass center of shape
         x_mayor=max(borde,key=lambda item:item[1]) 
         y_mayor=max(borde,key=lambda item:item[0])
@@ -68,16 +78,31 @@ def detectar_formas(img2,pixeles):
         m_c2=1.0*(picos[2][0]-picos[3][0])/(picos[2][1]-picos[3][1])
         print "m2: ",m_c2
         #for y in xrange(y_menor[0],y_mayor[0]):
-        for x in xrange(ancho):
+        candidatos=[]
+        #eqt1=(0,0,0)
+        #eqt2=(0,0,0)
+        for x in xrange(x_menor[1],x_mayor[1]):
             equ1=int(round(m_c1*(x-picos[1][1])+picos[1][0]))
             equ2=int(round(m_c2*(x-picos[2][1])+picos[2][0]))
             if equ1>=0 and equ1<alto:
-                if (equ1,x) in borde:
-                    img2=tangent(equ1,x,img2)
-                    
-                if (equ2,x) in borde:
-                    img2=tangent(equ2,x,img2)
-                    
+                if (equ1,x) in borde and (equ2,x) in borde:
+                    slope=1.0*tangent(equ1,x,y_menor,y_mayor)
+                    slope2=1.0*tangent(equ2,x,y_menor,y_mayor)
+                    eqt1=(slope,equ1,x)
+                    eqt2=(slope2,equ2,x)
+                    point=equation(eqt1,eqt2,x_menor,x_mayor)
+                    #print point
+                    #img2[point[0]][point[1]]=(255,0,255) 
+                    #continue
+                #img2[equ1][x]=(0,0,0)
+                    #break
+                #if (equ2,x) in borde:
+                #    slope=tangent(equ2,x,y_menor,y_mayor)
+                #    eqt2=(slope,equ2,x)
+                    #continue
+           # point=equation(eqt1,eqt2)
+           # img2[point[0]][point[1]]=(255,0,255)
+                   # break
                 #img2[equ1][x]=(0,0,0)
                 #img2[equ2][x]=(0,0,0)
             
