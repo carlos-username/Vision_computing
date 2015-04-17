@@ -62,6 +62,39 @@ def promedio(histo):
         if histo[val]<prom:
             dic2[val]=histo[val]
     return dic2
+def adaptive_threshold(image):
+    alto=len(image)
+    ancho=len(image[0])
+    int_image=[[0]*ancho for i in xrange(alto)]
+    salida=[[0]*ancho for i in xrange(alto)]
+    S = ancho/8
+    s2 = S/2
+    T = 22.0
+    #T = 15.0
+    #s=4
+    for y in xrange(alto):
+        suma=0
+        for x in xrange(ancho):
+            suma+=image[y][x]
+            if not i:
+                int_image[y][x]=suma
+            else:
+                int_image[y][x]=suma+int_image[y-1][x]
+
+    for y in xrange(alto):
+        for x in xrange(ancho):
+            y0=max(y-s2,0)
+            y1=min(y+s2,alto-1)
+            x0=max(x-s2,0)
+            x1=min(x+s2,ancho-1)
+            conta=(x1-x0)*(y1-y0)
+            #suma=int_image[y2][x2]-int_image[y1-1][x2]-int_image[y2][x1-1]+int_image[y1-1][x1-1]
+            suma = int_image[y1][x1]-int_image[y0][x1]-int_image[y1][x0]+int_image[y0][x0]
+            if image[y][x]*conta < suma*(100.-T)/100.:
+                salida[y][x]=0
+            else:
+                salida[y][x]=255
+    return salida
 
 def lineas(img,img2,alto,ancho):
     #img=to_grayscale(image)
@@ -115,17 +148,20 @@ def lineas(img,img2,alto,ancho):
                     img2[y][x]=(100,150,150)
     figura_actual=[]
     agujeros=[]
-    agujeros_lon=[]
+    #agujeros_lon=[]
+    agu_porciento=[]
     while holes!=[]:
         inicio=choice(holes)
         figura_actual=imagendfs(binar2,inicio,holes,3)
         for i in figura_actual:
             holes.remove(i)
         agujeros.append(figura_actual)
-        agujeros_lon.append(len(figura_actual))
+        #agujeros_lon.append(len(figura_actual))
+        porcientos=centro_masa(binar2,figura_actual)
+        agu_porciento.append(porcientos[2]) #by percentage
     #print "agujeros",agujeros
     longs={}
-    for i in agujeros_lon:
+    for i in agu_porciento:
         if i in longs:
             longs[i]+=1
         else:
@@ -133,11 +169,16 @@ def lineas(img,img2,alto,ancho):
     print "longs: ",longs
     t=otsu_t2(longs,len(longs))
     print "threshold_len: ",t
+    conta=0
     for fig in agujeros:
-        if len(fig)>=t:
+        print agu_porciento[conta]
+        if agu_porciento[conta]>=t:
+            color=(randint(60,230),randint(110,210),randint(70,255))
             print "fig: ", fig
             caja_envolvente(fig,img2)
-            
+            for i in fig:
+                img2[i[0]][i[1]]=color
+        conta+=1
     return img2
 
 
@@ -162,8 +203,4 @@ def main():
 if __name__ == '__main__':
     main()
 
-                        
-#img3=median(img)
-#plt.imshow(img3,cmap = cm.Greys_r) #Drawing modified image with detected edges
-#plt.show()
 
