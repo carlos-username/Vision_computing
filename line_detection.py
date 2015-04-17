@@ -88,7 +88,7 @@ def funcion(componentes,T):
         selec={}
         angulo=m[1]
         for linea in componentes[m]:
-            if len(linea)>threshold_long:
+            if len(linea)>5:
                 sal=freq(hough(angulo,linea,selec))
                 arreglo_frec = frecuentes(sal, int(round(len(sal) * 10)))
                 color=(randint(50,150),randint(100,200),randint(100,200)) 
