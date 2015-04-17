@@ -62,7 +62,7 @@ def promedio(histo):
         if histo[val]<prom:
             dic2[val]=histo[val]
     return dic2
-def adaptive_threshold(image):
+def adaptive_threshold(image): #Based on Wellner's algorithm: http://citeseerx.ist.psu.edu/viewdoc/download?doi=10.1.1.420.7883&rep=rep1&type=pdf
     alto=len(image)
     ancho=len(image[0])
     int_image=[[0]*ancho for i in xrange(alto)]
