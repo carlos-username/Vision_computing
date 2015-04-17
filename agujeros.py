@@ -97,39 +97,16 @@ def adaptive_threshold(image):
     return salida
 
 def lineas(img,img2,alto,ancho):
-    #img=to_grayscale(image)
     hist=histogram(img)
-    #tr_mg=otsu_t2(hist,alto*ancho)
-    #blur = cv2.GaussianBlur(img,(5,5),0)
     binar=adaptive_threshold(img)
     binar2=median(binar)
-    
-    #binar=adaptive_thresh(img)
-    #img=binarize(tr_mg,img)
     vertical=histogram_vertical(binar2,alto,ancho)
-    #binar=adaptive_thresh(img)
-    
     print "vertical: ",vertical
     horizontal=histogram_horizontal(binar2,alto,ancho)
-    #frecuencia_h=frec(horizontal)
-    
-    #frecuencia_v=frec(vertical)
-    #print "frecuencia_v: ", frecuencia_v
-    #threshold_h=otsu_t2(frecuencia_h,len(frecuencia_h))
-    #print "t_h",threshold_h
-    #threshold_v=otsu_t2(frecuencia_v,len(frecuencia_v))
-    #print "t_v",threshold_v
-    #picos_v=descartar(vertical,threshold_v)
-    #picos_h=descartar(horizontal,threshold_h)
     picos_h=promedio(horizontal)
     picos_v=promedio(vertical)
-    #threshold_v=promedio(vertical)
-    #picos_v=descartar(vertical,threshold_v)
-    #picos_h=descartar(horizontal,threshold_h)   
     print "picos_v: ",picos_v
     print "picos_h: ",picos_h
-    #print len(picos_v)
-    #print len(picos_h)
     vert=[]
     horiz=[]
     color1=(255,0,0)

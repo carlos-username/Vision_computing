@@ -15,7 +15,9 @@ import math
 from dfs_and_vec import * #subroutine for dfs
 from detectar_cuadro import * #detect box
 from grayscale import *
+from agujeros import adaptive_threshold
 img2=gray_scale(argv[1])
+img3=adaptive_threshold(img2)
 img=median(img2)
 #histo_x=histogram(img3)
 #img=binarize(otsu_t2(histo_x,img3),img3)
@@ -98,5 +100,24 @@ longitud_magn=len(histo)
 
 #threshold=otsu_t2(frecuencias,img)
 #print threshold
-        
+def main():
+    for i in xrange(1,ancho-1): #Detecting edges by using previously calculated threshold
+        for j in xrange(1,alto-1):
+            if histo[r]>threshold:
+                img[i][j]=255
+                #pixeles.append((i,j))
+                #vec=vecinos(i,j,img)
+                #for m in vec:
+                #    img[m[0]][m[1]]=255
+            else:
+                img[i][j]=0
+            r+=1
+    plt.imshow(img,cmap = cm.Greys_r) #Drawing modified image with detected shapes
+    plt.show()
+    
+            
+
+if __name__ == '__main__':
+    main()
+            
      

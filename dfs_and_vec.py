@@ -22,6 +22,21 @@ def imagendfs(imagen,coord,figura,correr):
         if nodo not in visitados:
             visitados.append(nodo)
             vec=vecinos(nodo[0],nodo[1],imagen)
+            # for fila in xrange(nodo[0]-1,nodo[0]+2):
+            #     for columna in xrange(nodo[1]-1,nodo[1]+2):
+            #         if fila<len(imagen) and columna<len(imagen[0]) and fila>=0 and columna>=0 and (fila != nodo[0] or columna != nodo[1]):
+            #             vecino_actual=(fila,columna)
+            #             if vecino_actual not in visitados and vecino_actual not in pila:
+            #                 if correr==True:
+            #                     if vecino_actual not in figura:
+            #                         pila.append(vecino_actual)
+            #                 elif correr==False:
+            #                     if tuple(imagen[vecino_actual[0]][vecino_actual[1]])!=color1 and tuple(imagen[vecino_actual[0]][vecino_actual[1]])!=color2:
+            #                         pila.append(vecino_actual)
+            #                 if correr==3:
+            #                     if vecino_actual in figura:
+            #                         pila.append(vecino_actual)
+  
             for n in vec:
                 if n not in visitados and n not in pila:
                     if correr==True:
