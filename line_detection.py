@@ -1,6 +1,7 @@
 #!/usr/bin/python2
 #import cv2
 from edge_detection2 import *
+from scipy import arange
 r=0
 pixeles=[]
 #H=[]
@@ -8,13 +9,13 @@ fr={}
 usados=[]
 H=[]
 selec={}
-threshold=otsu_t2(frecuencias,img) #Using otsu automatic threshold, based on: http://en.wikipedia.org/wiki/Otsu%27s_method
+threshold=otsu_t2(frecuencias,longitud_magn) #Using otsu automatic threshold, based on: http://en.wikipedia.org/wiki/Otsu%27s_method
 print threshold
-
+imagen=rgb_scale(argv[1])
 def freq(histog):
     freq={}
     for j in xrange(len(histog)):
-        (magnitud, angulo,rho)=histog[j]
+        (angulo,rho)=histog[j]
         comb=(angulo,rho)
         if comb in freq:
             freq[comb]+=1
@@ -27,31 +28,19 @@ for i in xrange(1,ancho-1): #Detecting edges by using previously calculated thre
         if histo[r][0]>threshold:
             img[i][j]=255
             pixeles.append((i,j))
-            #if histo[r][1] in fr: #Grouping by angles
-            #    fr[histo[r][1]].append((i,j))
-            #else:
-            #    fr[histo[r][1]]=[(i,j)]
-            angulo=histo[r][1]
-            if angulo != None: #keep angle within 0 and 180
-                while angulo < 0:
-                    angulo+=pi
-                while angulo > pi:
-                    angulo-=pi
-                rho=(j-alto/2)*cos(angulo)+(ancho/2 - i)*sin(angulo) #get rho and switch coordinates to the center
-                angle=int((180 * (angulo / pi)) / 18) #get angle
-                H.append((histo[r][0],angle,rho)) 
-                selec[angle,rho]=(i,j)
-                
-                # if angle in fr:
-                #     fr[angle].append((i,j))
-                # else:
-                #     fr[angle]=[(i,j)]
+            if histo[r][1] in fr: #Grouping by angles
+                fr[histo[r][1]].append((i,j))
+            else:
+                fr[histo[r][1]]=[(i,j)]
         else:
             img[i][j]=0
 
         r+=1
 sal=freq(H)
-def frecuentes(histo, cantidad): #mainly based on Dra. elisa's algorithm to accept or revoke lines according to the votes: http://elisa.dyndns-web.com/teaching/comp/vision/2015.html
+alto=len(imagen)
+ancho=len(imagen[0])
+#threshold_long=0
+def frecuentes(histo, cantidad): 
     frec = []
     candidatos=[]
     for valor in histo:
@@ -65,25 +54,81 @@ def frecuentes(histo, cantidad): #mainly based on Dra. elisa's algorithm to acce
             for (v, f) in frec:
                 if frecuencia > f:
                     aceptar = True
-                    break
+                break
         if aceptar:
             frec.append((valor, frecuencia))
             frec = sorted(frec, key = lambda tupla: tupla[1])
             if len(frec) > cantidad:
                 frec.pop(0)
-    candidatos = []
     for valor in frec:
-        print valor[0]
         candidatos.append(valor[0])
-    
+            
     return candidatos #getting candidates for a line
-arreglo_frec = frecuentes(sal, int(round(len(sal) * 10)))
+#arreglo_frec = frecuentes(sal, int(round(len(sal) * 100)))
+            
+def hough(angulo,elem,selec):
+    #selec={}
+    #if angulo != None:
+    #H=[]
+    H=[]
+    for j in elem:
+        while angulo < 0:
+            angulo+=pi
+        while angulo > pi:
+            angulo-=pi
+        rho=(j[1]-ancho/2)*cos(angulo)+(alto/2 - j[0])*sin(angulo) #get rho and switch coordinates to the center
+        angle=int((180 * (angulo / pi)) / 18) #get angle
+        H.append((angle,rho))
+        selec[angle,rho]=(j[0],j[1])
+  
+    return H
 
+def funcion(componentes,T):
+    for m in componentes:
+        selec={}
+        angulo=m[1]
+        for linea in componentes[m]:
+            if len(linea)>threshold_long:
+                sal=freq(hough(angulo,linea,selec))
+                arreglo_frec = frecuentes(sal, int(round(len(sal) * 10)))
+                color=(randint(50,150),randint(100,200),randint(100,200)) 
+                line=[]
+                for b in arreglo_frec: # getting to color the candidates that are within the groups of angles
+                    if selec.has_key(b):
+                        if not b[0]:
+                            for y in xrange(alto):
+                                if (y,selec[b][1]) in linea:
+                                    imagen[y][selec[b][1]]=color
+                        else:
+                            imagen[selec[b][0]][selec[b][1]]=color
+                            line.append((selec[b][0],selec[b][1]))
+                                  
+
+                # distance=[]
+                # for cr in line:
+                #     if cr[1]!=line[0][1] and cr[0]!=line[0][0]:
+                #         dist=math.sqrt(pow(line[0][0]-cr[0],2)+pow(line[0][1]-cr[1],2))
+                #         distance.append((cr[0],cr[1],dist))
+                #     #print "dis: ",distance
+                # if len(distance):
+                #     p2=max(distance,key=lambda item:item[2])
+                #     p1=min(distance,key=lambda item:item[2])
+                #     #p1=choice(distance)
+                #     #print "g_d: ",p2
+                #     #print "g_min: ",p1
+                #     if p2[1]-p1[1]>0:
+                #         m1=1.0*(p2[0]-p1[0])/(p2[1]-p1[1])
+                #         for x in xrange(ancho):
+                #             y=int(m1*(x-p1[1])+p1[0])
+                #             if y>=0 and y<alto:
+                #                 imagen[y][x]=color
+
+                 
 def Conex(elemento):
-    #global threshold_long
+    global threshold_long
     conta=1
     Objetos_por_grupo={}
-    #longitudes=[]
+    longitudes=[]
     for i in elemento:
         elementos=elemento[i]
         conta2=0
@@ -91,6 +136,8 @@ def Conex(elemento):
         while len(elementos)>0:
             inicio=choice(elementos)
             recorrido1=imagendfs(imagen,inicio,elementos,3)
+            longitudes.append(len(recorrido1))
+            #print "Elemento: ", recorrido1
             for r in recorrido1:
                 if r in elementos:
                     elementos.remove((r[0],r[1])) #remove previously discovered figures
@@ -98,26 +145,15 @@ def Conex(elemento):
             conta2+=1
         print "Grupo: ",conta, "con", conta2
         conta+=1
-    #print "longitudes: ",longitudes
-    #freq=frecuencia1(longitudes)
-    #threshold_long=otsu_t2(freq,len(longitudes)) #Using otsu automatic threshold, based on: http://en.wikipedia.org/wiki/Otsu%27s_method                                                      
-    #print "threshold_longitudes: ",threshold_long
+    print "longitudes: ",longitudes
+    freq=frecuencia1(longitudes)
+    threshold_long=otsu_t2(freq,len(longitudes)) #Using otsu automatic threshold, based on: http://en.wikipedia.org/wiki/Otsu%27s_method
+    print "threshold_longitudes: ",threshold_long
     return Objetos_por_grupo
-obj=Conex(fr)
-
-imagen=rgb_scale(argv[1])
-for j in arreglo_frec:
-    if selec.has_key(j):
-        if j[0] in fr:
-            fr[angle].append((i,j))
-        else:
-            fr[angle]=[(i,j)]
-            
-          #  for g in xrange(len(fr[j[0]])):
-           #     if (g,selec[j][1]) in fr[j[0]]:
-            #        imagen[g][selec[j][1]]=colores[j[0]]
-                                        
+        #Objetos_por_grupo[1]
         
+obj=Conex(fr)
+funcion(obj,threshold_long)
 plt.imshow(imagen,cmap = cm.Greys_r) #Drawing modified image
 plt.show()
-     
+
