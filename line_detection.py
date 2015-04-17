@@ -9,8 +9,8 @@ fr={}
 usados=[]
 H=[]
 selec={}
-threshold=otsu_t2(frecuencias,longitud_magn) #Using otsu automatic threshold, based on: http://en.wikipedia.org/wiki/Otsu%27s_method
-print threshold
+#threshold=otsu_t2(frecuencias,longitud_magn) #Using otsu automatic threshold, based on: http://en.wikipedia.org/wiki/Otsu%27s_method
+#print threshold
 imagen=rgb_scale(argv[1])
 def freq(histog):
     freq={}
@@ -25,7 +25,7 @@ def freq(histog):
                                             
 for i in xrange(1,ancho-1): #Detecting edges by using previously calculated threshold
     for j in xrange(1,alto-1):
-        if histo[r][0]>threshold:
+        if histo[r][0]>prom:
             img[i][j]=255
             pixeles.append((i,j))
             if histo[r][1] in fr: #Grouping by angles
@@ -99,31 +99,8 @@ def funcion(componentes,T):
                             for y in xrange(alto):
                                 if (y,selec[b][1]) in linea:
                                     imagen[y][selec[b][1]]=color
-                        else:
-                            imagen[selec[b][0]][selec[b][1]]=color
-                            line.append((selec[b][0],selec[b][1]))
-                                  
-
-                # distance=[]
-                # for cr in line:
-                #     if cr[1]!=line[0][1] and cr[0]!=line[0][0]:
-                #         dist=math.sqrt(pow(line[0][0]-cr[0],2)+pow(line[0][1]-cr[1],2))
-                #         distance.append((cr[0],cr[1],dist))
-                #     #print "dis: ",distance
-                # if len(distance):
-                #     p2=max(distance,key=lambda item:item[2])
-                #     p1=min(distance,key=lambda item:item[2])
-                #     #p1=choice(distance)
-                #     #print "g_d: ",p2
-                #     #print "g_min: ",p1
-                #     if p2[1]-p1[1]>0:
-                #         m1=1.0*(p2[0]-p1[0])/(p2[1]-p1[1])
-                #         for x in xrange(ancho):
-                #             y=int(m1*(x-p1[1])+p1[0])
-                #             if y>=0 and y<alto:
-                #                 imagen[y][x]=color
-
-                 
+                        imagen[selec[b][0]][selec[b][1]]=color
+                         
 def Conex(elemento):
     global threshold_long
     conta=1

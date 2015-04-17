@@ -77,7 +77,11 @@ def recorrido(image):
     return magnitudes
 
 histo=recorrido(img) #getting magnitudes
-print "len histo: ",len(histo)
+suma=0.0
+for i in histo:
+    suma+=i[0]
+prom=suma/len(histo)
+#print "len histo: ",len(histo)
 #print histo
 #print "histo->\n",histo
 def frecuencia(arr): #getting frecuency
