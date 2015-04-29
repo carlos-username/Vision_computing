@@ -12,40 +12,26 @@ from sklearn.cluster import *
 cc=[]
 def bounding_boxes(frame,contours,y_linea,x_linea):
     counter=0
-    #print contours
-    #hull=[]
     counter_carro=0
     counter_moto=0
     counter_camion=0
             
     for contour in contours:
         (x,y,w,h) = cv2.boundingRect(contour)
-        #(x1,y1),radius = cv2.minEnclosingCircle(contour)
-        #center = (int(x1),int(y1))
-        #if radius>20:
-        #    cv2.circle(frame,center,int(radius),(0,255,0),2)
         if w > 20 and h > 20:
             M = cv2.moments(contour)
             c_x = int(M['m10']/M['m00'])
             c_y = int(M['m01']/M['m00'])
             area=int(M["m00"])
-            #porciento=int(area*100/(y_linea*2*x_linea))
-            #print area
-            #hs=cv2.convexHull(contour)
-            #print hs
-            #cv2.drawContours(frame,[hs],0,(0,0,255),2)
-            #cc.append(area)
             diff=c_y-y_linea
-            if diff>1 and diff<=10 and c_x<=x_linea and c_x>=0:
+            if diff>1 and diff<=10 and c_x<=x_linea and c_x>=0: #area threshold to classify
                 if area<=1000:
-                    #print #porciento
                     counter_moto+=1
                 if area>1000 and area<=4800:
                     counter_carro+=1
                 if area>5000:
                     counter_camion+=1
                 counter+=1
-                    #print "Counter: ",counter
             else:
                 cv2.rectangle(frame, (x,y), (x+w,y+h), (255, 0, 0), 2)
                 cv2.circle(frame,(int(c_x),int(c_y)),1,(0,255,0),4)
@@ -56,21 +42,15 @@ def detect_lines(gray):
     lines = cv2.HoughLines(edges, 2, np.pi/180, 40)[0]
     lines1=[]
     for (rho, theta) in lines[:5]:
-        # blue for infinite lines (only draw the 5 strongest)
         a = np.cos(theta)
         b = np.sin(theta)
         x0 = a*rho
-        #y0 = b*rho
         x1 = int(x0 + 1000*(-b))
-        #y1 = int(y0 + 1000*(a))
         x2 = int(x0 - 1000*(-b))
-        #y2 = int(y0 - 1000*(a))
         if x1 and x2:
             lines1.append((x1,x2))
-        #cv2.line(frame,(x1,y1),(x2,y2),(0,0,255),2)
     x_m=min(lines1,key=lambda item:item[0])
     x_M=max(lines1,key=lambda item:item[1])
-    #print lines1
     return (x_m[0]+80,x_M[1])
 
 def crop_area(framex):
@@ -79,9 +59,8 @@ def crop_area(framex):
     return detect_lines(framex)
   
 def detection(capture,kernel):
-    #capture.set(cv2.cv.CV_CAP_PROP_FPS, -20)
     frame1=capture.read()[1]
-    horiz=crop_area(frame1)
+    horiz=crop_area(frame1) #cropping image area
     counter2=0
     counter_carro=0
     counter_moto=0
@@ -90,20 +69,20 @@ def detection(capture,kernel):
         #counter=0
         ret, frame = capture.read()
         if ret:
-            frame=cv2.resize(frame,(900,400),interpolation = cv2.INTER_CUBIC)
+            frame=cv2.resize(frame,(900,400),interpolation = cv2.INTER_CUBIC) #resizing with linear interpolation
             frame = frame[:,horiz[0]:horiz[1]]
-            frame2=cv2.cvtColor(frame,cv2.COLOR_RGB2GRAY)
+            frame2=cv2.cvtColor(frame,cv2.COLOR_RGB2GRAY) 
             newf=cv2.GaussianBlur(frame,(5,5),0)
-            fgmask = fgbg.apply(newf,learningRate=0.005)
-            new_frame=cv2.GaussianBlur(fgmask.copy(),(7,7),2)
-            new_frame = cv2.threshold(new_frame.copy(),127,255,cv2.THRESH_BINARY)[1]
+            fgmask = fgbg.apply(newf,learningRate=0.005) #using a learning rate of 0.005
+            new_frame=cv2.GaussianBlur(fgmask.copy(),(7,7),2) #applying gausian filter to post-processing
+            new_frame = cv2.threshold(new_frame.copy(),127,255,cv2.THRESH_BINARY)[1] #postprocesing
             alto=len(frame)
             ancho=len(frame[0])
             cv2.line(frame,(0,alto//2),(ancho,alto//2),(100,175,150),2)
-            closing = cv2.morphologyEx(new_frame, cv2.MORPH_CLOSE, kernel,iterations=2)
-            contours=cv2.findContours(closing,cv2.RETR_EXTERNAL,cv2.CHAIN_APPROX_SIMPLE)[0]
-            valores=bounding_boxes(frame,contours,alto//2,ancho)
-            counter2+=valores[0]
+            closing = cv2.morphologyEx(new_frame, cv2.MORPH_CLOSE, kernel,iterations=2) #two iterations for closing operation
+            contours=cv2.findContours(closing,cv2.RETR_EXTERNAL,cv2.CHAIN_APPROX_SIMPLE)[0] #getting contours
+            valores=bounding_boxes(frame,contours,alto//2,ancho) #getting bounding boxes
+            counter2+=valores[0] #getting counting values
             counter_carro+=valores[2]
             counter_moto+=valores[1]
             counter_camion+=valores[3]
